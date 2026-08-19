@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  frontend:
+    build: ./frontend
+    container_name: qc-frontend
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE_URL=http://api:4000/api/v1
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+      - db
+
+  api:
+    build: ./backend
+    container_name: qc-api
+    restart: unless-stopped
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=nestle
+      - DB_PASSWORD=nestle
+      - DB_DATABASE=nestle
+      - JWT_SECRET=change_me
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=nestle
+      - POSTGRES_USER=nestle
+      - POSTGRES_PASSWORD=nestle
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:
