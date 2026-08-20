@@ -50,6 +50,17 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+// API Home
+app.get("/", (req, res) => {
+  res.json({
+    message: "QC System API is running",
+    version: "1.0.0",
+    status: "ok",
+    health: "/health",
+    api: "/api/v1"
+  });
+});
+
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`QC API listening on port ${port}`);
